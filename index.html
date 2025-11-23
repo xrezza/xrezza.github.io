@@ -3,63 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reza - Portfolio</title>
+<title>Reza - Ultimate Portfolio</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
-* {margin:0; padding:0; box-sizing:border-box;}
-html,body{height:100%; font-family:'Roboto Mono', monospace; overflow:hidden;}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'Roboto Mono', monospace;overflow:hidden;}
 body{
-    background:#0d0d0d;
-    color:#fff;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    text-align:center;
-    position:relative;
+  background: linear-gradient(135deg,#1a0a3c,#0d0d0d,#3c0a6a);
+  display:flex;justify-content:center;align-items:center;flex-direction:column;text-align:center;position:relative;
+  color:#fff;
 }
-h1,h2{margin-bottom:20px;}
-h1{font-size:3rem; opacity:0; animation:fadeIn 2s forwards;}
-.typing{
-    border-right:3px solid #fff;
-    white-space:nowrap;
-    overflow:hidden;
-    display:inline-block;
-    font-size:2rem;
-}
-.social{
-    margin-top:40px;
-    display:flex;
-    justify-content:center;
-    gap:20px;
-}
+
+/* Responsive Typography */
+h1{font-size:4vw; min-font-size:24px; letter-spacing:2px; opacity:0; animation:fadeIn 2s forwards;}
+.typing{border-right:3px solid #fff; white-space:nowrap; overflow:hidden; display:inline-block; font-size:2.5vw; max-font-size:32px;}
+
+.social{margin-top:40px; display:flex; justify-content:center; gap:20px;}
 .social a{
-    display:inline-block;
-    padding:12px 22px;
-    border-radius:8px;
-    background: linear-gradient(45deg,#ff00ff,#00ffff);
-    color:#fff;
-    text-decoration:none;
-    font-weight:bold;
-    transition:0.3s;
+  display:inline-block;
+  padding:12px 24px;
+  border-radius:10px;
+  background: linear-gradient(45deg,#ff00ff,#00ffff,#ff007f);
+  color:#fff;
+  text-decoration:none;
+  font-weight:bold;
+  transition:0.3s;
+  box-shadow:0 0 10px rgba(255,255,255,0.2);
 }
 .social a:hover{
-    transform: scale(1.4) rotate(-5deg);
-    box-shadow: 0 0 25px #ff00ff,0 0 25px #00ffff;
+  transform: scale(1.5) rotate(-5deg);
+  box-shadow:0 0 25px #ff00ff,0 0 25px #00ffff,0 0 15px #ff007f;
 }
 
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
+@keyframes fadeIn{to{opacity:1;}}
 
-canvas{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index:-1;
-}
+canvas{position:absolute;top:0;left:0;width:100%;height:100%; z-index:-1;}
 </style>
 </head>
 <body>
@@ -69,85 +48,93 @@ canvas{
 <h1 class="typing" id="typed"></h1>
 
 <div class="social">
-    <a href="https://instagram.com" target="_blank">Instagram</a>
-    <a href="https://t.me" target="_blank">Telegram</a>
+  <a href="https://instagram.com" target="_blank">Instagram</a>
+  <a href="https://t.me" target="_blank">Telegram</a>
 </div>
 
 <script>
 // ----- Typed Text Animation -----
 const phrases = [
-    "Hi, I’m Reza",
-    "Welcome to my Portfolio",
-    "Let’s create something amazing!"
+  "Hi, I’m Reza",
+  "Welcome to the ultimate portfolio",
+  "Let’s build something amazing together!"
 ];
 const typed = document.getElementById("typed");
 let phraseIndex=0, charIndex=0;
 function type(){
-    const current = phrases[phraseIndex];
-    typed.textContent = current.slice(0,charIndex);
-    charIndex++;
-    if(charIndex>current.length){
-        setTimeout(()=>{
-            charIndex=0;
-            phraseIndex=(phraseIndex+1)%phrases.length;
-        },1500);
-    }
-    setTimeout(type,150);
+  const current = phrases[phraseIndex];
+  typed.textContent = current.slice(0,charIndex);
+  charIndex++;
+  if(charIndex>current.length){
+    setTimeout(()=>{
+      charIndex=0;
+      phraseIndex=(phraseIndex+1)%phrases.length;
+    },2000);
+  }
+  setTimeout(type,120);
 }
 type();
 
-// ----- Particle Background -----
+// ----- Advanced Particle Background -----
 const canvas = document.getElementById('bg');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const particles=[];
-const particleCount = 150;
+const particleCount = 200;
+
 for(let i=0;i<particleCount;i++){
-    particles.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        r: Math.random()*3+1,
-        dx: (Math.random()-0.5)*1.5,
-        dy: (Math.random()-0.5)*1.5
-    });
+  particles.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    r: Math.random()*2+1,
+    dx:(Math.random()-0.5)*2,
+    dy:(Math.random()-0.5)*2,
+    hue: Math.random()*360
+  });
 }
 
 let mouse = {x:null, y:null};
-window.addEventListener('mousemove', e => { mouse.x=e.x; mouse.y=e.y; });
+window.addEventListener('mousemove', e=>{mouse.x=e.x; mouse.y=e.y;});
 
 function animate(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    particles.forEach(p=>{
-        // move
-        p.x+=p.dx; p.y+=p.dy;
-        // bounce
-        if(p.x>canvas.width || p.x<0) p.dx*=-1;
-        if(p.y>canvas.height || p.y<0) p.dy*=-1;
-        // follow mouse
-        if(mouse.x && mouse.y){
-            let dx=mouse.x - p.x;
-            let dy=mouse.y - p.y;
-            let dist=Math.sqrt(dx*dx+dy*dy);
-            if(dist<120){
-                p.x -= dx*0.04;
-                p.y -= dy*0.04;
-            }
-        }
-        // draw
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fillStyle='rgba(255,255,255,0.8)';
-        ctx.fill();
-    });
-    requestAnimationFrame(animate);
+  ctx.fillStyle = 'rgba(13,13,13,0.3)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  particles.forEach(p=>{
+    // Move
+    p.x+=p.dx; p.y+=p.dy;
+
+    // Bounce edges
+    if(p.x>canvas.width || p.x<0) p.dx*=-1;
+    if(p.y>canvas.height || p.y<0) p.dy*=-1;
+
+    // Follow mouse
+    if(mouse.x && mouse.y){
+      let dx = mouse.x - p.x;
+      let dy = mouse.y - p.y;
+      let dist = Math.sqrt(dx*dx+dy*dy);
+      if(dist<150){
+        p.x -= dx*0.05;
+        p.y -= dy*0.05;
+      }
+    }
+
+    // Draw particle with color
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = `hsl(${p.hue}, 100%, 70%)`;
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
 }
 animate();
 
 window.addEventListener('resize',()=>{
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 });
 </script>
 
