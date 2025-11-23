@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تل کوین | ارز دیجیتال</title>
+    <title>نکست لول | امپراطوری دیجیتال</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -57,7 +57,7 @@
             background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
             padding: 5px 20px; font-size: 0.75rem; color: #aaa;
             display: flex; justify-content: space-between; border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; z-index: 10; /* چسبیدن نوار اطلاعات به بالا */
+            position: sticky; top: 0; z-index: 10;
         }
         .info-item { margin-left: 15px; }
         .info-item i { margin-left: 5px; color: var(--accent); }
@@ -255,204 +255,193 @@
     </div>
 
     <script>
-        const ADMIN_ID = "justfor_everyone";
+        document.addEventListener('DOMContentLoaded', function() {
+            const ADMIN_ID = "justfor_everyone";
 
-        // --- حذف لودینگ: نیازی به تابع removeLoader نیست ---
-        
-        // --- تنظیمات تم ---
-        function toggleTheme() {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
-            html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-            if(window.initBgParticles) window.initBgParticles(); 
-        }
+            // --- 1. سیستم اطلاعات (ساعت، IP، دستگاه) ---
+            function updateSystemInfo() {
+                try {
+                    // ساعت
+                    document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString('fa-IR');
+                    
+                    // IP (تلاش برای دریافت، اگر موفق نشد، Hidden نمایش می‌دهد)
+                    const ipElement = document.getElementById('user-ip');
+                    if (ipElement && ipElement.innerText.includes('شناسایی')) {
+                        fetch('https://api.ipify.org?format=json')
+                        .then(res => res.json())
+                        .then(data => ipElement.innerHTML = `<i class="fas fa-globe"></i> ${data.ip}`)
+                        .catch(() => ipElement.innerText = "Hidden IP");
+                    }
+                    
+                    // دستگاه
+                    const device = /Android|iPhone/i.test(navigator.userAgent) ? 'موبایل' : 'کامپیوتر';
+                    document.getElementById('user-device').innerHTML = `<i class="fas fa-${device === 'موبایل' ? 'mobile' : 'desktop'}"></i> ${device}`;
+                } catch(e) { console.error('System Info Error:', e); }
+            }
+            updateSystemInfo(); // اجرای اولیه فوری
+            setInterval(updateSystemInfo, 1000);
 
-        // --- اطلاعات سیستم ---
-        setInterval(() => {
+            // --- 2. کرسر موس ---
             try {
-                document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString('fa-IR');
-                // تلاش برای دریافت IP
-                if(document.getElementById('user-ip') && document.getElementById('user-ip').innerText.includes('...')) {
-                    fetch('https://api.ipify.org?format=json')
-                    .then(res => res.json())
-                    .then(data => document.getElementById('user-ip').innerHTML = `<i class="fas fa-globe"></i> ${data.ip}`)
-                    .catch(() => document.getElementById('user-ip').innerText = "Hidden IP");
-                }
-                const device = /Android|iPhone/i.test(navigator.userAgent) ? 'موبایل' : 'کامپیوتر';
-                document.getElementById('user-device').innerHTML = `<i class="fas fa-${device==='موبایل'?'mobile':'desktop'}"></i> ${device}`;
-            } catch(e) { console.log('Info Error'); }
-        }, 1000);
-
-        // --- کرسر موس ---
-        try {
-            const cursor = document.querySelector('.cursor');
-            const dot = document.querySelector('.cursor-dot');
-            document.addEventListener('mousemove', (e) => {
-                if(window.innerWidth > 768) {
-                    dot.style.left = e.clientX + 'px';
-                    dot.style.top = e.clientY + 'px';
-                    cursor.style.left = (e.clientX - 15) + 'px';
-                    cursor.style.top = (e.clientY - 15) + 'px';
-                }
-            });
-        } catch(e) {}
-
-        // --- ثبت سفارش ---
-        function scrollToOrder(type) {
-            document.getElementById('p-type').value = type;
-            document.getElementById('order-zone').scrollIntoView({behavior: 'smooth'});
-        }
-
-        function submitOrder() {
-            const type = document.getElementById('p-type').value;
-            const amount = document.getElementById('p-amount').value;
-            const uid = document.getElementById('p-id').value;
-            if(!amount || !uid) { alert('لطفا اطلاعات را کامل کنید'); return; }
-            const code = 'R-' + Math.floor(Math.random() * 100000);
-            const msg = `🚨 *سفارش جدید*\n----------------\n🔖 کد: \`${code}\`\n📦 محصول: ${type}\n💰 مقدار: ${amount}\n👤 کاربر: ${uid}\n----------------\nلطفا شماره کارت بدهید.`;
-            window.open(`https://t.me/${ADMIN_ID}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        // --- بازی Cyber Dodge ---
-        const gCanvas = document.getElementById('gameCanvas');
-        if(gCanvas) {
-            const gCtx = gCanvas.getContext('2d');
-            let gameLoopId;
-            let gameScore = 0;
-            let isPlaying = false;
-            let playerX = 150;
-            let items = [];
-            let spawnRate = 60;
-            let frameCount = 0;
-            let speedMultiplier = 1;
-
-            const savedBest = localStorage.getItem('cyberBest') || 0;
-            if(document.getElementById('gameBest')) document.getElementById('gameBest').innerText = savedBest;
-
-            function resizeGame() {
-                if(gCanvas.parentElement) {
-                    gCanvas.width = gCanvas.parentElement.offsetWidth;
-                    gCanvas.height = 400;
-                    playerX = gCanvas.width / 2;
-                }
-            }
-            window.addEventListener('resize', resizeGame);
-            resizeGame();
-
-            function movePlayer(clientX) {
-                if(!isPlaying) return;
-                const rect = gCanvas.getBoundingClientRect();
-                playerX = clientX - rect.left;
-            }
-            gCanvas.addEventListener('mousemove', (e) => movePlayer(e.clientX));
-            gCanvas.addEventListener('touchmove', (e) => {
-                e.preventDefault(); 
-                movePlayer(e.touches[0].clientX);
-            }, {passive: false});
-
-            window.startGame = function() {
-                document.getElementById('gameOverlay').style.display = 'none';
-                gameScore = 0;
-                items = [];
-                speedMultiplier = 1;
-                isPlaying = true;
-                document.getElementById('gameScore').innerText = '0';
-                gameLoop();
-            }
-
-            function gameOver() {
-                isPlaying = false;
-                cancelAnimationFrame(gameLoopId);
-                document.getElementById('gameOverlay').style.display = 'flex';
-                document.querySelector('#gameOverlay h2').innerText = "GAME OVER!";
-                const best = parseInt(localStorage.getItem('cyberBest') || 0);
-                if(gameScore > best) {
-                    localStorage.setItem('cyberBest', gameScore);
-                    document.getElementById('gameBest').innerText = gameScore;
-                }
-            }
-
-            function gameLoop() {
-                if(!isPlaying) return;
-                gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
-
-                // بازیکن
-                gCtx.fillStyle = '#00f3ff';
-                gCtx.shadowBlur = 15; gCtx.shadowColor = '#00f3ff';
-                gCtx.beginPath();
-                gCtx.moveTo(playerX, 350);
-                gCtx.lineTo(playerX - 15, 390);
-                gCtx.lineTo(playerX + 15, 390);
-                gCtx.fill();
-                gCtx.shadowBlur = 0;
-
-                // آیتم‌ها
-                frameCount++;
-                if(frameCount % Math.floor(spawnRate / speedMultiplier) === 0) {
-                    const isBad = Math.random() > 0.7;
-                    items.push({
-                        x: Math.random() * (gCanvas.width - 20),
-                        y: -20,
-                        size: Math.random() * 10 + 15,
-                        speed: (Math.random() * 2 + 2) * speedMultiplier,
-                        type: isBad ? 'bad' : 'good'
+                const cursor = document.querySelector('.cursor');
+                const dot = document.querySelector('.cursor-dot');
+                if (cursor && dot) {
+                    document.addEventListener('mousemove', (e) => {
+                        if (window.innerWidth > 768) {
+                            dot.style.left = e.clientX + 'px';
+                            dot.style.top = e.clientY + 'px';
+                            cursor.style.left = (e.clientX - 15) + 'px';
+                            cursor.style.top = (e.clientY - 15) + 'px';
+                        }
                     });
                 }
-                if(frameCount % 500 === 0) speedMultiplier += 0.1;
+            } catch(e) {}
 
-                // منطق حرکت
-                for(let i = 0; i < items.length; i++) {
-                    let p = items[i];
-                    p.y += p.speed;
+            // --- 3. ثبت سفارش ---
+            window.scrollToOrder = function(type) {
+                document.getElementById('p-type').value = type;
+                document.getElementById('order-zone').scrollIntoView({behavior: 'smooth'});
+            }
+
+            window.submitOrder = function() {
+                const type = document.getElementById('p-type').value;
+                const amount = document.getElementById('p-amount').value;
+                const uid = document.getElementById('p-id').value;
+                if (!amount || !uid) { alert('لطفا اطلاعات را کامل کنید'); return; }
+                const code = 'R-' + Math.floor(Math.random() * 100000);
+                const msg = `🚨 *سفارش جدید*\n----------------\n🔖 کد: \`${code}\`\n📦 محصول: ${type}\n💰 مقدار: ${amount}\n👤 کاربر: ${uid}\n----------------\nلطفا شماره کارت بدهید.`;
+                window.open(`https://t.me/${ADMIN_ID}?text=${encodeURIComponent(msg)}`, '_blank');
+            }
+
+            // --- 4. بازی Cyber Dodge ---
+            const gCanvas = document.getElementById('gameCanvas');
+            if (gCanvas) {
+                const gCtx = gCanvas.getContext('2d');
+                let gameLoopId;
+                let gameScore = 0;
+                let isPlaying = false;
+                let playerX = 150;
+                let items = [];
+                let spawnRate = 60;
+                let frameCount = 0;
+                let speedMultiplier = 1;
+
+                const savedBest = localStorage.getItem('cyberBest') || 0;
+                const gameBestElement = document.getElementById('gameBest');
+                if (gameBestElement) gameBestElement.innerText = savedBest;
+
+                function resizeGame() {
+                    if (gCanvas.parentElement) {
+                        gCanvas.width = gCanvas.parentElement.offsetWidth;
+                        gCanvas.height = 400;
+                        playerX = gCanvas.width / 2;
+                    }
+                }
+                window.addEventListener('resize', resizeGame);
+                resizeGame();
+
+                function movePlayer(clientX) {
+                    if (!isPlaying) return;
+                    const rect = gCanvas.getBoundingClientRect();
+                    playerX = clientX - rect.left;
+                }
+                gCanvas.addEventListener('mousemove', (e) => movePlayer(e.clientX));
+                gCanvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    movePlayer(e.touches[0].clientX);
+                }, { passive: false });
+
+                window.startGame = function() {
+                    document.getElementById('gameOverlay').style.display = 'none';
+                    gameScore = 0;
+                    items = [];
+                    speedMultiplier = 1;
+                    isPlaying = true;
+                    document.getElementById('gameScore').innerText = '0';
+                    gameLoop();
+                }
+
+                function gameOver() {
+                    isPlaying = false;
+                    cancelAnimationFrame(gameLoopId);
+                    document.getElementById('gameOverlay').style.display = 'flex';
+                    document.querySelector('#gameOverlay h2').innerText = "GAME OVER!";
+                    const best = parseInt(localStorage.getItem('cyberBest') || 0);
+                    if (gameScore > best) {
+                        localStorage.setItem('cyberBest', gameScore);
+                        if (gameBestElement) gameBestElement.innerText = gameScore;
+                    }
+                }
+
+                function gameLoop() {
+                    if (!isPlaying) return;
+                    gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+
+                    // بازیکن
+                    gCtx.fillStyle = '#00f3ff';
+                    gCtx.shadowBlur = 15; gCtx.shadowColor = '#00f3ff';
                     gCtx.beginPath();
-                    if(p.type === 'good') {
-                        gCtx.fillStyle = '#bc13fe';
-                        gCtx.arc(p.x, p.y, p.size/2, 0, Math.PI*2);
-                        gCtx.fill();
-                    } else {
-                        gCtx.fillStyle = '#ff0055';
-                        gCtx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
-                    }
+                    gCtx.moveTo(playerX, 350);
+                    gCtx.lineTo(playerX - 15, 390);
+                    gCtx.lineTo(playerX + 15, 390);
+                    gCtx.fill();
+                    gCtx.shadowBlur = 0;
 
-                    const dist = Math.sqrt(Math.pow(p.x - playerX, 2) + Math.pow(p.y - 370, 2));
-                    if(dist < p.size + 10) {
-                        if(p.type === 'bad') {
-                            gameOver(); return;
+                    // آیتم‌ها
+                    frameCount++;
+                    if (frameCount % Math.floor(spawnRate / speedMultiplier) === 0) {
+                        const isBad = Math.random() > 0.7;
+                        items.push({
+                            x: Math.random() * (gCanvas.width - 20),
+                            y: -20,
+                            size: Math.random() * 10 + 15,
+                            speed: (Math.random() * 2 + 2) * speedMultiplier,
+                            type: isBad ? 'bad' : 'good'
+                        });
+                    }
+                    if (frameCount % 500 === 0) speedMultiplier += 0.1;
+
+                    // منطق حرکت
+                    for (let i = 0; i < items.length; i++) {
+                        let p = items[i];
+                        p.y += p.speed;
+                        gCtx.beginPath();
+                        if (p.type === 'good') {
+                            gCtx.fillStyle = '#bc13fe';
+                            gCtx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+                            gCtx.fill();
                         } else {
-                            gameScore += 10;
-                            document.getElementById('gameScore').innerText = gameScore;
-                            items.splice(i, 1); i--; continue;
+                            gCtx.fillStyle = '#ff0055';
+                            gCtx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
                         }
+
+                        const dist = Math.sqrt(Math.pow(p.x - playerX, 2) + Math.pow(p.y - 370, 2));
+                        if (dist < p.size + 10) {
+                            if (p.type === 'bad') {
+                                gameOver(); return;
+                            } else {
+                                gameScore += 10;
+                                document.getElementById('gameScore').innerText = gameScore;
+                                items.splice(i, 1); i--; continue;
+                            }
+                        }
+                        if (p.y > 410) { items.splice(i, 1); i--; }
                     }
-                    if(p.y > 410) { items.splice(i, 1); i--; }
+                    gameLoopId = requestAnimationFrame(gameLoop);
                 }
-                gameLoopId = requestAnimationFrame(gameLoop);
             }
-        }
 
-        // --- پس زمینه ذرات ---
-        const bgCanvas = document.getElementById("bgCanvas");
-        if(bgCanvas) {
-            const ctx = bgCanvas.getContext("2d");
-            let particlesArray;
+            // --- 5. پس زمینه ذرات ---
+            const bgCanvas = document.getElementById("bgCanvas");
+            if (bgCanvas) {
+                const ctx = bgCanvas.getContext("2d");
+                let particlesArray;
 
-            function resizeBg() {
-                bgCanvas.width = window.innerWidth;
-                bgCanvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', () => { resizeBg(); initBgParticles(); });
-            resizeBg();
-
-            class Particle {
-                constructor(x, y, size, sX, sY) {
-                    this.x = x; this.y = y; this.size = size; this.sX = sX; this.sY = sY;
+                function resizeBg() {
+                    bgCanvas.width = window.innerWidth;
+                    bgCanvas.height = window.innerHeight;
                 }
-                update() {
-                    this.x += this.sX; this.y += this.sY;
-                    if(this.x > bgCanvas.width || this.x < 0) this.sX = -this.sX;
-                    if(this.y > bgCanvas.height || this.y < 0) this.sY = -this.sY;
-                }
-                draw() {
-                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                    ctx.fillStyle = isDark ? '#00f3ff' : '#2980b9';
-                    ctx.beginPath(); ctx.arc(this.x, this.y, 
+                window.addEventListener('resize', () => { resizeBg(); initBgParticles(); });
+                resizeBg();
+
+   
