@@ -283,13 +283,16 @@
             // لود رکورد بازی
             const savedBest = localStorage.getItem('cyberBest') || 0;
             document.getElementById('gameBest').innerText = savedBest;
+            
+            // مقداردهی اولیه ذرات پس‌زمینه
+            initBgParticles();
         }
 
         function toggleTheme() {
             const html = document.documentElement;
             const current = html.getAttribute('data-theme');
             html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-            initBgParticles(); 
+            // حذف فراخوانی initBgParticles() از اینجا
         }
 
         // اطلاعات سیستم
@@ -465,18 +468,16 @@
         // --- پس زمینه ذرات سایت ---
         const bgCanvas = document.getElementById("bgCanvas");
         const ctx = bgCanvas.getContext("2d");
-        let particlesArray;
+        let particlesArray = [];
 
         function resizeBg() {
             bgCanvas.width = window.innerWidth;
             bgCanvas.height = window.innerHeight;
         }
-        window.addEventListener('resize', () => { resizeBg(); initBgParticles(); });
+        window.addEventListener('resize', resizeBg);
         resizeBg();
 
         class Particle {
-            constructor(x, y, size, sX, sY) {
-                this.x = x; this.y = y; this.size = size; this.sX = sX; this.sY = sY;
-            }
-            update() {
+            constructor() {
+                this.x = Math.random() * bgCanvas.width;
  
