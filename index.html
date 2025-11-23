@@ -1,111 +1,155 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سایت شخصی من</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            background: #f7f7f7;
-            color: #333;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reza - Portfolio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+* {margin:0; padding:0; box-sizing:border-box;}
+html,body{height:100%; font-family:'Roboto Mono', monospace; overflow:hidden;}
+body{
+    background:#0d0d0d;
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+    position:relative;
+}
+h1,h2{margin-bottom:20px;}
+h1{font-size:3rem; opacity:0; animation:fadeIn 2s forwards;}
+.typing{
+    border-right:3px solid #fff;
+    white-space:nowrap;
+    overflow:hidden;
+    display:inline-block;
+    font-size:2rem;
+}
+.social{
+    margin-top:40px;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+}
+.social a{
+    display:inline-block;
+    padding:12px 22px;
+    border-radius:8px;
+    background: linear-gradient(45deg,#ff00ff,#00ffff);
+    color:#fff;
+    text-decoration:none;
+    font-weight:bold;
+    transition:0.3s;
+}
+.social a:hover{
+    transform: scale(1.4) rotate(-5deg);
+    box-shadow: 0 0 25px #ff00ff,0 0 25px #00ffff;
+}
 
-        header {
-            background: #111;
-            color: #fff;
-            padding: 40px 20px;
-            text-align: center;
-        }
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
 
-        header img {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 3px solid #fff;
-            object-fit: cover;
-        }
-
-        header h1 {
-            margin-top: 15px;
-            font-size: 26px;
-        }
-
-        section {
-            max-width: 800px;
-            margin: 40px auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px #00000015;
-            line-height: 1.8;
-        }
-
-        h2 {
-            margin-top: 0;
-            color: #444;
-        }
-
-        a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .social {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .btn {
-            padding: 10px 18px;
-            background: #111;
-            color: #fff;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-
-        .btn:hover {
-            background: #333;
-        }
-    </style>
+canvas{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:-1;
+}
+</style>
 </head>
-
 <body>
 
-<header>
-    <img src="https://via.placeholder.com/150" alt="Profile">
-    <h1>نام شما</h1>
-    <p>توضیح کوتاه درباره شما (برنامه‌نویس، طراح، فریلنسر و…)</p>
-</header>
+<canvas id="bg"></canvas>
 
-<section>
-    <h2>درباره من</h2>
-    <p>
-        اینجا می‌تونی یک توضیح کوتاه درباره خودت بنویسی. هر چیزی که دوست داری: تخصص‌ها، 
-        سابقه، مهارت‌ها یا هر چیز دیگه.
-    </p>
-</section>
+<h1 class="typing" id="typed"></h1>
 
-<section>
-    <h2>شبکه‌های اجتماعی</h2>
-    <div class="social">
-        <a class="btn" href="#" target="_blank">اینستاگرام</a>
-        <a class="btn" href="#" target="_blank">تلگرام</a>
-        <a class="btn" href="#" target="_blank">گیت‌هاب</a>
-    </div>
-</section>
+<div class="social">
+    <a href="https://instagram.com" target="_blank">Instagram</a>
+    <a href="https://t.me" target="_blank">Telegram</a>
+</div>
 
-<section>
-    <h2>تماس</h2>
-    <p>
-        ایمیل: <b>you@example.com</b>
-    </p>
-</section>
+<script>
+// ----- Typed Text Animation -----
+const phrases = [
+    "Hi, I’m Reza",
+    "Welcome to my Portfolio",
+    "Let’s create something amazing!"
+];
+const typed = document.getElementById("typed");
+let phraseIndex=0, charIndex=0;
+function type(){
+    const current = phrases[phraseIndex];
+    typed.textContent = current.slice(0,charIndex);
+    charIndex++;
+    if(charIndex>current.length){
+        setTimeout(()=>{
+            charIndex=0;
+            phraseIndex=(phraseIndex+1)%phrases.length;
+        },1500);
+    }
+    setTimeout(type,150);
+}
+type();
+
+// ----- Particle Background -----
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles=[];
+const particleCount = 150;
+for(let i=0;i<particleCount;i++){
+    particles.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        r: Math.random()*3+1,
+        dx: (Math.random()-0.5)*1.5,
+        dy: (Math.random()-0.5)*1.5
+    });
+}
+
+let mouse = {x:null, y:null};
+window.addEventListener('mousemove', e => { mouse.x=e.x; mouse.y=e.y; });
+
+function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+        // move
+        p.x+=p.dx; p.y+=p.dy;
+        // bounce
+        if(p.x>canvas.width || p.x<0) p.dx*=-1;
+        if(p.y>canvas.height || p.y<0) p.dy*=-1;
+        // follow mouse
+        if(mouse.x && mouse.y){
+            let dx=mouse.x - p.x;
+            let dy=mouse.y - p.y;
+            let dist=Math.sqrt(dx*dx+dy*dy);
+            if(dist<120){
+                p.x -= dx*0.04;
+                p.y -= dy*0.04;
+            }
+        }
+        // draw
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,0.8)';
+        ctx.fill();
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+
+window.addEventListener('resize',()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
 
 </body>
 </html>
