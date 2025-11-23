@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تِل کوین | ارز دیجیتال</title>
+    <title>تل کوین | ارز دیجیتال</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -40,23 +40,6 @@
             transition: background 0.5s, color 0.5s;
         }
 
-        /* لودینگ اسکرین */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 99999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease-out;
-        }
-        .loader-bar {
-            width: 200px; height: 4px; background: #333; margin-top: 20px;
-            position: relative; overflow: hidden; border-radius: 2px;
-        }
-        .loader-progress {
-            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
-            background: var(--accent); animation: loadProgress 2.5s ease forwards;
-        }
-        @keyframes loadProgress { 0% {width: 0%} 100% {width: 100%} }
-
         /* کرسر موس */
         .cursor {
             width: 30px; height: 30px; border: 1px dashed var(--accent); border-radius: 50%;
@@ -69,12 +52,12 @@
         }
         @keyframes rotateCursor { 100% { transform: rotate(360deg); } }
 
-        /* نوار اطلاعات */
+        /* نوار اطلاعات سیستم (بالا) */
         .sys-info-bar {
             background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
             padding: 5px 20px; font-size: 0.75rem; color: #aaa;
             display: flex; justify-content: space-between; border-bottom: 1px solid var(--border);
-            position: relative; z-index: 10;
+            position: sticky; top: 0; z-index: 10; /* چسبیدن نوار اطلاعات به بالا */
         }
         .info-item { margin-left: 15px; }
         .info-item i { margin-left: 5px; color: var(--accent); }
@@ -89,7 +72,7 @@
         }
         .theme-btn:hover { transform: scale(1.1); }
 
-        /* پس زمینه */
+        /* پس زمینه ذرات */
         #bgCanvas { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 2; }
@@ -195,11 +178,6 @@
 </head>
 <body>
 
-    <div id="loader">
-        <h2 style="color:white; letter-spacing:3px;">INITIALIZING SYSTEM...</h2>
-        <div class="loader-bar"><div class="loader-progress"></div></div>
-    </div>
-
     <div class="cursor"></div>
     <div class="cursor-dot"></div>
     <canvas id="bgCanvas"></canvas>
@@ -220,7 +198,7 @@
             <p style="color: var(--accent); margin-top:10px;">خرید استارز و تون با تکنولوژی آینده</p>
         </header>
 
-        
+        [attachment_0](attachment)
 
         <div class="grid">
             <div class="card">
@@ -279,21 +257,8 @@
     <script>
         const ADMIN_ID = "justfor_everyone";
 
-        // --- رفع مشکل لودینگ (کد اصلاح شده) ---
-        function removeLoader() {
-            const loader = document.getElementById('loader');
-            if(loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; }, 800);
-            }
-        }
-
-        // 1. اگر سایت لود شد، حذف کن
-        window.addEventListener('load', removeLoader);
+        // --- حذف لودینگ: نیازی به تابع removeLoader نیست ---
         
-        // 2. اگر لود نشد (نت ضعیف)، بعد از 3 ثانیه به زور حذف کن (Failsafe)
-        setTimeout(removeLoader, 3000);
-
         // --- تنظیمات تم ---
         function toggleTheme() {
             const html = document.documentElement;
@@ -306,7 +271,7 @@
         setInterval(() => {
             try {
                 document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString('fa-IR');
-                // تلاش برای دریافت IP (با مدیریت خطا)
+                // تلاش برای دریافت IP
                 if(document.getElementById('user-ip') && document.getElementById('user-ip').innerText.includes('...')) {
                     fetch('https://api.ipify.org?format=json')
                     .then(res => res.json())
@@ -348,7 +313,7 @@
             window.open(`https://t.me/${ADMIN_ID}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- بازی Cyber Dodge (با محافظت خطا) ---
+        // --- بازی Cyber Dodge ---
         const gCanvas = document.getElementById('gameCanvas');
         if(gCanvas) {
             const gCtx = gCanvas.getContext('2d');
@@ -361,7 +326,6 @@
             let frameCount = 0;
             let speedMultiplier = 1;
 
-            // لود رکورد
             const savedBest = localStorage.getItem('cyberBest') || 0;
             if(document.getElementById('gameBest')) document.getElementById('gameBest').innerText = savedBest;
 
@@ -375,7 +339,6 @@
             window.addEventListener('resize', resizeGame);
             resizeGame();
 
-            // کنترل
             function movePlayer(clientX) {
                 if(!isPlaying) return;
                 const rect = gCanvas.getBoundingClientRect();
@@ -458,4 +421,38 @@
                         } else {
                             gameScore += 10;
                             document.getElementById('gameScore').innerText = gameScore;
-                            items.splice(i, 1); i-
+                            items.splice(i, 1); i--; continue;
+                        }
+                    }
+                    if(p.y > 410) { items.splice(i, 1); i--; }
+                }
+                gameLoopId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // --- پس زمینه ذرات ---
+        const bgCanvas = document.getElementById("bgCanvas");
+        if(bgCanvas) {
+            const ctx = bgCanvas.getContext("2d");
+            let particlesArray;
+
+            function resizeBg() {
+                bgCanvas.width = window.innerWidth;
+                bgCanvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', () => { resizeBg(); initBgParticles(); });
+            resizeBg();
+
+            class Particle {
+                constructor(x, y, size, sX, sY) {
+                    this.x = x; this.y = y; this.size = size; this.sX = sX; this.sY = sY;
+                }
+                update() {
+                    this.x += this.sX; this.y += this.sY;
+                    if(this.x > bgCanvas.width || this.x < 0) this.sX = -this.sX;
+                    if(this.y > bgCanvas.height || this.y < 0) this.sY = -this.sY;
+                }
+                draw() {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    ctx.fillStyle = isDark ? '#00f3ff' : '#2980b9';
+                    ctx.beginPath(); ctx.arc(this.x, this.y, 
