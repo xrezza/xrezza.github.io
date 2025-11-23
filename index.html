@@ -1,498 +1,482 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تِل کوین | خرید استارز و تون</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تِل کوین | ارز دیجیتال</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
             --bg: #050505;
-            --glass: rgba(255, 255, 255, 0.05);
+            --card-bg: rgba(20, 20, 20, 0.6);
+            --text: #ffffff;
+            --accent: #00f3ff;
+            --secondary: #bc13fe;
+            --danger: #ff0055;
             --border: rgba(255, 255, 255, 0.1);
-            --neon-blue: #00f3ff;
-            --neon-purple: #bc13fe;
-            --text: #fff;
+            --shadow: 0 0 20px rgba(0, 243, 255, 0.2);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; cursor: none; /* موس اختصاصی */ }
+        [data-theme="light"] {
+            --bg: #eef2f5;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --text: #1a1a2e;
+            --accent: #2980b9;
+            --secondary: #8e44ad;
+            --danger: #e74c3c;
+            --border: rgba(0, 0, 0, 0.1);
+            --shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; cursor: none; }
 
         body {
-            background: var(--bg);
+            background-color: var(--bg);
             color: var(--text);
             overflow-x: hidden;
             min-height: 100vh;
+            transition: 0.5s;
         }
 
-        /* لودینگ اسکرین */
+        /* لودینگ */
         #loader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 1s;
         }
-        .loader-text {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--neon-blue);
-            text-shadow: 0 0 10px var(--neon-blue);
-            letter-spacing: 5px;
-            animation: blink 0.5s infinite;
+        .loader-bar {
+            width: 200px; height: 3px; background: #333; margin-top: 20px;
+            position: relative; overflow: hidden;
         }
+        .loader-progress {
+            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+            background: var(--accent); animation: load 2s ease forwards;
+        }
+        @keyframes load { 100% { width: 100%; } }
 
-        /* کرسر موس سفارشی */
+        /* کرسر موس */
         .cursor {
-            width: 20px; height: 20px;
-            border: 2px solid var(--neon-blue);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 10000;
-            transition: transform 0.1s;
-            box-shadow: 0 0 10px var(--neon-blue);
+            width: 30px; height: 30px; border: 1px dashed var(--accent); border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 10000; transition: transform 0.1s;
+            animation: rotateCursor 4s infinite linear;
         }
         .cursor-dot {
-            width: 4px; height: 4px;
-            background: var(--neon-purple);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 10001;
+            width: 6px; height: 6px; background: var(--secondary); border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 10001;
+        }
+        @keyframes rotateCursor { 100% { transform: rotate(360deg); } }
+
+        /* نوار اطلاعات */
+        .sys-info-bar {
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            padding: 5px 20px; font-size: 0.75rem; color: #aaa;
+            display: flex; justify-content: space-between; border-bottom: 1px solid var(--border);
+            position: relative; z-index: 10;
+        }
+        .info-item { margin-left: 15px; }
+        .info-item i { margin-left: 5px; color: var(--accent); }
+
+        /* دکمه تم */
+        .theme-btn {
+            position: fixed; top: 80px; left: 20px; z-index: 100;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--card-bg); border: 1px solid var(--border);
+            color: var(--text); display: flex; justify-content: center; align-items: center;
+            box-shadow: var(--shadow); cursor: none;
         }
 
-        /* پس زمینه متحرک */
-        canvas {
-            position: fixed;
-            top: 0; left: 0;
-            z-index: -1;
-        }
+        /* پس زمینه ذرات */
+        #bgCanvas { position: fixed; top: 0; left: 0; z-index: 0; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            z-index: 2;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 2; }
 
-        /* افکت گلیچ برای متن */
-        .glitch {
-            position: relative;
-            font-size: 4rem;
-            font-weight: 900;
-            color: white;
-            text-shadow: 2px 2px var(--neon-purple), -2px -2px var(--neon-blue);
-        }
-        
         /* هدر */
-        header {
-            text-align: center;
-            padding: 80px 0;
-            animation: fadeIn 2s ease;
+        header { text-align: center; padding: 60px 0; }
+        .glitch-text {
+            font-size: 3.5rem; font-weight: 900; position: relative;
+            text-shadow: 2px 2px var(--secondary);
+            animation: glitch 3s infinite;
         }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            color: #ccc;
-            margin-top: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* کارت‌های ۳ بعدی */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 40px;
-            margin-bottom: 100px;
-            perspective: 1000px; /* برای افکت سه بعدی */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            2% { transform: translate(-2px, 2px); }
+            4% { transform: translate(2px, -2px); }
+            6% { transform: translate(0); }
         }
 
+        /* کارت‌ها */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 60px; }
         .card {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            padding: 40px;
-            border-radius: 30px;
-            text-align: center;
+            background: var(--card-bg); border: 1px solid var(--border);
+            padding: 30px; border-radius: 20px; text-align: center;
+            backdrop-filter: blur(15px); transition: 0.4s;
             transform-style: preserve-3d;
-            transition: transform 0.1s;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            position: relative;
+        }
+        .card:hover { transform: translateY(-10px) rotateX(5deg); border-color: var(--accent); }
+        .card-icon { font-size: 4rem; margin-bottom: 20px; background: linear-gradient(45deg, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .btn {
+            padding: 12px 30px; border-radius: 50px; border: none;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            color: white; font-weight: bold; font-size: 1rem; margin-top: 15px;
+            display: inline-block; cursor: none; transition: 0.3s;
+        }
+        .btn:hover { box-shadow: 0 0 20px var(--accent); letter-spacing: 1px; }
+
+        /* --- استایل جدید بازی --- */
+        .game-wrapper {
+            background: #000;
+            border: 2px solid var(--accent);
+            border-radius: 20px;
             overflow: hidden;
-        }
-
-        /* افکت نور چرخشی دور کارت */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: 30px;
-            padding: 2px;
-            background: linear-gradient(45deg, transparent, var(--neon-blue), transparent, var(--neon-purple));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0.5;
-        }
-
-        .icon-3d {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            transform: translateZ(50px); /* بیرون زدگی آیکون */
-            background: linear-gradient(to bottom, var(--neon-blue), var(--neon-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px var(--neon-purple));
-        }
-
-        .card h3 { font-size: 2rem; margin-bottom: 10px; transform: translateZ(30px); }
-        .card p { color: #aaa; margin-bottom: 30px; transform: translateZ(20px); }
-
-        .btn-glow {
-            display: inline-block;
-            padding: 15px 40px;
-            background: transparent;
-            color: var(--neon-blue);
-            border: 2px solid var(--neon-blue);
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-decoration: none;
-            box-shadow: 0 0 10px var(--neon-blue), inset 0 0 10px var(--neon-blue);
-            transition: 0.3s;
-            transform: translateZ(40px);
-            cursor: none;
-        }
-
-        .btn-glow:hover {
-            background: var(--neon-blue);
-            color: #000;
-            box-shadow: 0 0 40px var(--neon-blue), inset 0 0 20px var(--neon-blue);
-        }
-
-        /* فرم سفارش فضایی */
-        .order-zone {
-            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            padding: 50px;
-            max-width: 800px;
-            margin: 0 auto 50px;
             position: relative;
-            backdrop-filter: blur(30px);
-        }
-
-        .input-box {
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .input-box input, .input-box select {
-            width: 100%;
-            background: rgba(0,0,0,0.4);
-            border: none;
-            border-bottom: 2px solid #333;
-            padding: 15px;
-            color: white;
-            font-size: 1.2rem;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .input-box input:focus, .input-box select:focus {
-            border-bottom-color: var(--neon-purple);
+            margin-bottom: 60px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
         }
         
-        .input-box label {
-            position: absolute;
-            top: -20px;
-            right: 0;
-            color: var(--neon-blue);
-            font-size: 0.9rem;
-        }
-
-        .btn-submit {
+        canvas#gameCanvas {
+            display: block;
             width: 100%;
-            padding: 20px;
-            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: 900;
-            border-radius: 15px;
+            height: 400px;
+            background: radial-gradient(circle at bottom, #1a0b2e 0%, #000 100%);
             cursor: none;
-            position: relative;
-            overflow: hidden;
-            transition: 0.4s;
+            touch-action: none; /* جلوگیری از اسکرول موبایل */
         }
 
-        .btn-submit:hover {
-            letter-spacing: 2px;
-            box-shadow: 0 0 30px var(--neon-purple);
+        .game-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.8); z-index: 5;
         }
 
-        footer {
-            text-align: center;
-            padding: 50px;
-            border-top: 1px solid var(--border);
-            margin-top: 50px;
-            font-size: 0.9rem;
-            opacity: 0.7;
+        .game-stats {
+            position: absolute; top: 10px; left: 10px; right: 10px;
+            display: flex; justify-content: space-between;
+            color: white; font-family: monospace; font-size: 1.2rem;
+            z-index: 4; pointer-events: none;
         }
 
-        .reza-sign {
-            color: var(--neon-blue);
-            font-weight: bold;
-            font-family: monospace;
-            font-size: 1.2rem;
-            text-shadow: 0 0 5px var(--neon-blue);
+        .btn-play {
+            padding: 15px 40px; font-size: 1.5rem; background: var(--secondary);
+            color: white; border: none; border-radius: 10px; cursor: none;
+            animation: pulseBtn 1s infinite;
         }
+        @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* موبایل */
-        @media (max-width: 768px) {
-            .glitch { font-size: 2.5rem; }
-            .card { transform: none !important; } /* غیرفعال کردن تیلت در موبایل */
+        /* تاریخچه */
+        .history-box {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 20px; padding: 30px; margin-bottom: 50px;
+            border-right: 4px solid var(--secondary);
         }
+        .history-content { line-height: 1.8; opacity: 0.8; text-align: justify; }
+
+        /* فرم سفارش */
+        .order-zone {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 30px; padding: 40px; max-width: 700px; margin: 0 auto;
+        }
+        .inp {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            padding: 15px; color: var(--text); border-radius: 10px; margin-bottom: 20px; outline: none;
+        }
+        .inp:focus { border-color: var(--accent); }
+
+        footer { text-align: center; margin-top: 50px; padding: 30px; border-top: 1px solid var(--border); color: #777; }
+        .reza { color: var(--accent); font-weight: bold; text-transform: uppercase; }
+
+        @media(max-width: 768px) { .cursor, .cursor-dot { display: none; } * { cursor: auto; } }
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <div class="loader-text">SYSTEM INITIALIZING...</div>
-        <div style="color:white; margin-top:10px; font-size: 0.8rem;">SECURE CONNECTION ESTABLISHED</div>
+        <h2 style="color:white; letter-spacing:3px;">INITIALIZING SYSTEM...</h2>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
     </div>
 
     <div class="cursor"></div>
     <div class="cursor-dot"></div>
+    <canvas id="bgCanvas"></canvas>
+    
+    <button class="theme-btn" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
 
-    <canvas id="canvas"></canvas>
+    <div class="sys-info-bar">
+        <div id="sys-clock">--:--:--</div>
+        <div style="display:flex;">
+            <div class="info-item" id="user-ip"><i class="fas fa-network-wired"></i> شناسایی...</div>
+            <div class="info-item" id="user-device"><i class="fas fa-laptop-code"></i> دستگاه</div>
+        </div>
+    </div>
 
     <div class="container">
         <header>
-            <div class="glitch" data-text="NEXT SHOP">NEXT SHOP</div>
-            <div class="subtitle">اولین مارکت استارز و تون با تکنولوژی وب ۳</div>
+            <div class="glitch-text">NEXT LEVEL SHOP</div>
+            <p style="color: var(--accent); margin-top:10px;">خرید استارز و تون با تکنولوژی آینده</p>
         </header>
 
         <div class="grid">
-            <div class="card tilt-card">
-                <div class="icon-3d"><i class="fas fa-star"></i></div>
-                <h3>Stars تلگرام</h3>
-                <p>مخصوص ربات‌ها و بازی‌ها</p>
-                <a href="#order-zone" onclick="selectProduct('Stars')" class="btn-glow">انتخاب محصول</a>
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-star"></i></div>
+                <h3>Telegram Stars</h3>
+                <p>شارژ آنی برای ربات‌ها</p>
+                <button onclick="scrollToOrder('Stars')" class="btn">خرید استارز</button>
             </div>
-
-            <div class="card tilt-card">
-                <div class="icon-3d"><i class="fas fa-gem"></i></div>
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-gem"></i></div>
                 <h3>TON Coin</h3>
-                <p>شارژ آنی کیف پول Tonkeeper</p>
-                <a href="#order-zone" onclick="selectProduct('TON')" class="btn-glow">انتخاب محصول</a>
+                <p>انتقال مستقیم به والت</p>
+                <button onclick="scrollToOrder('TON')" class="btn">خرید تون</button>
             </div>
         </div>
 
-        <section id="order-zone" class="order-zone">
-            <h2 style="text-align:center; margin-bottom:40px; color:white;">
-                <i class="fas fa-fingerprint" style="color:var(--neon-purple)"></i> ثبت سفارش امن
-            </h2>
-            
-            <div class="input-box">
-                <label>محصول انتخابی</label>
-                <select id="p-type" style="background: #111;">
-                    <option value="Stars">استارز (Telegram Stars)</option>
-                    <option value="TON">تون کوین (TON)</option>
-                </select>
+        <div class="game-wrapper">
+            <div class="game-stats">
+                <span>Score: <span id="gameScore">0</span></span>
+                <span>Best: <span id="gameBest">0</span></span>
             </div>
-
-            <div class="input-box">
-                <label>مقدار (تومان یا عدد)</label>
-                <input type="text" id="p-amount" placeholder="مثلا: 1000 استارز">
+            <div id="gameOverlay" class="game-overlay">
+                <h2 style="color:white; margin-bottom:20px; font-size:2rem; text-shadow:0 0 10px var(--accent);">CYBER DODGE</h2>
+                <p style="color:#ccc; margin-bottom:30px;">با موس یا لمس چپ و راست بروید<br>استارز بگیرید، از قرمزها فرار کنید!</p>
+                <button class="btn-play" onclick="startGame()">شروع بازی</button>
             </div>
+            <canvas id="gameCanvas"></canvas>
+        </div>
 
-            <div class="input-box">
-                <label>آیدی تلگرام شما</label>
-                <input type="text" id="p-id" placeholder="@username" dir="ltr" style="text-align: left;">
-            </div>
-
-            <button onclick="processOrder()" class="btn-submit">
-                دریافت کد سفارش و پرداخت <i class="fas fa-arrow-left"></i>
-            </button>
-            <p style="text-align: center; margin-top: 15px; color: #777; font-size: 0.8rem;">
-                با کلیک روی دکمه، به تلگرام ادمین منتقل می‌شوید تا فیش واریز را ارسال کنید.
+        <div class="history-box">
+            <div style="font-size:1.5rem; margin-bottom:15px; color:var(--accent);"><i class="fas fa-history"></i>&nbsp; تاریخچه تکنولوژی</div>
+            <p class="history-content">
+                <b>تون کوین (TON):</b> شبکه‌ای که توسط برادران دوروف (خالقان تلگرام) طراحی شد تا سریع‌ترین بلاکچین جهان باشد. این شبکه اکنون قلب تپنده وب ۳ در تلگرام است.<br><br>
+                <b>استارز (Stars):</b> واحد ارزی جدید تلگرام برای عبور از تحریم‌های اپل و گوگل. با استارز می‌توانید در بازی‌ها خرید کنید یا محتوای دیجیتال بخرید. ما در اینجا ارزان‌ترین استارز را ارائه می‌دهیم.
             </p>
+        </div>
+
+        <section id="order-zone" class="order-zone">
+            <h2 style="text-align:center; margin-bottom:30px;"><i class="fas fa-shopping-cart"></i> ثبت سفارش نهایی</h2>
+            <select id="p-type" class="inp">
+                <option value="Stars">استارز (Telegram Stars)</option>
+                <option value="TON">تون کوین (TON)</option>
+            </select>
+            <input type="text" id="p-amount" class="inp" placeholder="تعداد (مثلا: 1000 استارز)">
+            <input type="text" id="p-id" class="inp" placeholder="آیدی تلگرام شما (@username)" dir="ltr" style="text-align:left;">
+            <button onclick="submitOrder()" class="btn" style="width:100%;">دریافت کد رهگیری و پرداخت</button>
         </section>
 
         <footer>
-            <p>DESIGNED & DEVELOPED BY <span class="reza-sign">REZA</span></p>
-            <p style="margin-top:10px;">COPYRIGHT 2025 © WORLD CLASS CRYPTO SHOP</p>
+            <p>DESIGNED BY <span class="reza">REZA</span> | 2025</p>
         </footer>
     </div>
 
     <script>
-        // آیدی ادمین
         const ADMIN_ID = "justfor_everyone";
 
-        // 1. حذف لودینگ بعد از لود صفحه
-        window.addEventListener('load', () => {
+        // --- تنظیمات عمومی سایت ---
+        window.onload = () => {
             setTimeout(() => {
                 document.getElementById('loader').style.opacity = '0';
                 setTimeout(() => document.getElementById('loader').style.display = 'none', 1000);
             }, 1500);
-        });
-
-        // 2. تنظیمات موس اختصاصی (Cursor)
-        const cursor = document.querySelector('.cursor');
-        const cursorDot = document.querySelector('.cursor-dot');
-        
-        document.addEventListener('mousemove', (e) => {
-            cursorDot.style.left = e.clientX + 'px';
-            cursorDot.style.top = e.clientY + 'px';
-            cursor.style.transform = `translate(${e.clientX - 10}px, ${e.clientY - 10}px)`;
-        });
-
-        // 3. افکت سه بعدی کارت (Tilt Effect)
-        const cards = document.querySelectorAll('.tilt-card');
-        cards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = ((y - centerY) / centerY) * -15; // چرخش عمودی
-                const rotateY = ((x - centerX) / centerX) * 15;  // چرخش افقی
-
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
-            });
             
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-            });
-        });
-
-        // 4. انتخاب سریع محصول
-        function selectProduct(val) {
-            document.getElementById('p-type').value = val;
+            // لود رکورد بازی
+            const savedBest = localStorage.getItem('cyberBest') || 0;
+            document.getElementById('gameBest').innerText = savedBest;
         }
 
-        // 5. پردازش سفارش و تولید کد
-        function processOrder() {
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+            initBgParticles(); 
+        }
+
+        // اطلاعات سیستم
+        setInterval(() => {
+            document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString('fa-IR');
+            if(document.getElementById('user-ip').innerText.includes('...')) {
+                fetch('https://api.ipify.org?format=json')
+                .then(res => res.json())
+                .then(data => document.getElementById('user-ip').innerHTML = `<i class="fas fa-globe"></i> ${data.ip}`)
+                .catch(() => document.getElementById('user-ip').innerText = "Hidden IP");
+            }
+            const device = /Android|iPhone/i.test(navigator.userAgent) ? 'موبایل' : 'کامپیوتر';
+            document.getElementById('user-device').innerHTML = `<i class="fas fa-${device==='موبایل'?'mobile':'desktop'}"></i> ${device}`;
+        }, 1000);
+
+        // کرسر سفارشی
+        const cursor = document.querySelector('.cursor');
+        const dot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            dot.style.left = e.clientX + 'px';
+            dot.style.top = e.clientY + 'px';
+            cursor.style.left = (e.clientX - 15) + 'px';
+            cursor.style.top = (e.clientY - 15) + 'px';
+        });
+
+        // ثبت سفارش
+        function scrollToOrder(type) {
+            document.getElementById('p-type').value = type;
+            document.getElementById('order-zone').scrollIntoView({behavior: 'smooth'});
+        }
+
+        function submitOrder() {
             const type = document.getElementById('p-type').value;
             const amount = document.getElementById('p-amount').value;
             const uid = document.getElementById('p-id').value;
-
-            if(!amount || !uid) { alert('لطفا تمام فیلدها را پر کنید'); return; }
-
-            // تولید کد سفارش رندوم
-            const orderCode = 'ORD-' + Math.floor(Math.random() * 89999 + 10000);
-
-            // متن پیام برای ارسال به شما
-            const msg = `
-سلام ادمین 👋
-من قصد خرید دارم. اطلاعات سفارشم اینه:
-
-🧾 *کد سفارش:* \`${orderCode}\`
-📦 *محصول:* ${type}
-💰 *مقدار:* ${amount}
-👤 *آیدی من:* ${uid}
-
-💳 *لطفاً شماره کارت بدید تا مبلغ رو واریز کنم و عکس فیش رو همینجا براتون بفرستم.*
-            `;
-
-            // باز کردن تلگرام
-            const url = `https://t.me/${ADMIN_ID}?text=${encodeURIComponent(msg)}`;
-            window.open(url, '_blank');
+            if(!amount || !uid) { alert('لطفا اطلاعات را کامل کنید'); return; }
+            const code = 'R-' + Math.floor(Math.random() * 100000);
+            const msg = `🚨 *سفارش جدید*\n----------------\n🔖 کد: \`${code}\`\n📦 محصول: ${type}\n💰 مقدار: ${amount}\n👤 کاربر: ${uid}\n----------------\nلطفا شماره کارت بدهید.`;
+            window.open(`https://t.me/${ADMIN_ID}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // 6. بک‌گراند ذرات متحرک (Canvas Logic)
-        const canvas = document.getElementById("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        // --- موتور بازی (Cyber Dodge) ---
+        const gCanvas = document.getElementById('gameCanvas');
+        const gCtx = gCanvas.getContext('2d');
+        let gameLoopId;
+        let gameScore = 0;
+        let isPlaying = false;
+        let playerX = 150;
+        let items = []; // شامل ستاره‌ها و موانع
+        let spawnRate = 60;
+        let frameCount = 0;
+        let speedMultiplier = 1;
 
-        let particlesArray;
+        // تنظیم اندازه بازی
+        function resizeGame() {
+            gCanvas.width = gCanvas.parentElement.offsetWidth;
+            gCanvas.height = 400;
+            playerX = gCanvas.width / 2;
+        }
+        window.addEventListener('resize', resizeGame);
+        resizeGame();
 
-        class Particle {
-            constructor(x, y, directionX, directionY, size, color) {
-                this.x = x; this.y = y;
-                this.directionX = directionX; this.directionY = directionY;
-                this.size = size; this.color = color;
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-            update() {
-                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
-                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
-                this.x += this.directionX;
-                this.y += this.directionY;
-                this.draw();
-            }
+        // کنترل سفینه
+        gCanvas.addEventListener('mousemove', (e) => {
+            if(!isPlaying) return;
+            const rect = gCanvas.getBoundingClientRect();
+            playerX = e.clientX - rect.left;
+        });
+        
+        gCanvas.addEventListener('touchmove', (e) => {
+            if(!isPlaying) return;
+            const rect = gCanvas.getBoundingClientRect();
+            playerX = e.touches[0].clientX - rect.left;
+        }, {passive: false});
+
+        function startGame() {
+            document.getElementById('gameOverlay').style.display = 'none';
+            gameScore = 0;
+            items = [];
+            speedMultiplier = 1;
+            isPlaying = true;
+            document.getElementById('gameScore').innerText = '0';
+            gameLoop();
         }
 
-        function init() {
-            particlesArray = [];
-            let numberOfParticles = (canvas.height * canvas.width) / 9000;
-            for (let i = 0; i < numberOfParticles; i++) {
-                let size = (Math.random() * 2) + 1;
-                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
-                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
-                let directionX = (Math.random() * 0.4) - 0.2;
-                let directionY = (Math.random() * 0.4) - 0.2;
-                let color = '#00f3ff';
-                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+        function gameOver() {
+            isPlaying = false;
+            cancelAnimationFrame(gameLoopId);
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.querySelector('#gameOverlay h2').innerText = "GAME OVER!";
+            
+            // ذخیره رکورد
+            const best = parseInt(localStorage.getItem('cyberBest') || 0);
+            if(gameScore > best) {
+                localStorage.setItem('cyberBest', gameScore);
+                document.getElementById('gameBest').innerText = gameScore;
             }
         }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, innerWidth, innerHeight);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-            }
-            connect();
-        }
+        function gameLoop() {
+            if(!isPlaying) return;
+            gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
 
-        function connect() {
-            let opacityValue = 1;
-            for (let a = 0; a < particlesArray.length; a++) {
-                for (let b = a; b < particlesArray.length; b++) {
-                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + 
-                                   ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
-                    if (distance < (canvas.width/7) * (canvas.height/7)) {
-                        opacityValue = 1 - (distance/20000);
-                        ctx.strokeStyle = 'rgba(0, 243, 255,' + opacityValue + ')';
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-                        ctx.stroke();
+            // رسم بازیکن (سفینه مثلثی)
+            gCtx.fillStyle = '#00f3ff';
+            gCtx.shadowBlur = 15;
+            gCtx.shadowColor = '#00f3ff';
+            gCtx.beginPath();
+            gCtx.moveTo(playerX, 350);
+            gCtx.lineTo(playerX - 15, 390);
+            gCtx.lineTo(playerX + 15, 390);
+            gCtx.fill();
+            gCtx.shadowBlur = 0;
+
+            // تولید آیتم‌ها
+            frameCount++;
+            if(frameCount % Math.floor(spawnRate / speedMultiplier) === 0) {
+                const isBad = Math.random() > 0.7; // 30% شانس مانع
+                items.push({
+                    x: Math.random() * (gCanvas.width - 20),
+                    y: -20,
+                    size: Math.random() * 10 + 10,
+                    speed: (Math.random() * 2 + 2) * speedMultiplier,
+                    type: isBad ? 'bad' : 'good'
+                });
+            }
+
+            // افزایش سختی
+            if(frameCount % 500 === 0) speedMultiplier += 0.1;
+
+            // حرکت و رسم آیتم‌ها
+            for(let i = 0; i < items.length; i++) {
+                let p = items[i];
+                p.y += p.speed;
+
+                // رسم
+                gCtx.beginPath();
+                if(p.type === 'good') {
+                    gCtx.fillStyle = '#bc13fe'; // بنفش (استارز)
+                    gCtx.arc(p.x, p.y, p.size/2, 0, Math.PI*2);
+                    gCtx.fill();
+                } else {
+                    gCtx.fillStyle = '#ff0055'; // قرمز (ویروس)
+                    gCtx.rect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+                    gCtx.fill();
+                }
+
+                // برخورد
+                const dist = Math.sqrt(Math.pow(p.x - playerX, 2) + Math.pow(p.y - 370, 2));
+                if(dist < p.size + 10) {
+                    if(p.type === 'bad') {
+                        gameOver();
+                        return;
+                    } else {
+                        gameScore += 10;
+                        document.getElementById('gameScore').innerText = gameScore;
+                        items.splice(i, 1);
+                        i--;
+                        continue;
                     }
                 }
+
+                // حذف اگر از صفحه خارج شد
+                if(p.y > 410) {
+                    items.splice(i, 1);
+                    i--;
+                }
             }
+
+            gameLoopId = requestAnimationFrame(gameLoop);
         }
 
-        window.addEventListener('resize', () => {
-            canvas.width = innerWidth;
-            canvas.height = innerHeight;
-            init();
-        });
+        // --- پس زمینه ذرات سایت ---
+        const bgCanvas = document.getElementById("bgCanvas");
+        const ctx = bgCanvas.getContext("2d");
+        let particlesArray;
 
-        init();
-        animate();
-    </script>
-</body>
-</html>
+        function resizeBg() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', () => { resizeBg(); initBgParticles(); });
+        resizeBg();
+
+        class Particle {
+            constructor(x, y, size, sX, sY) {
+                this.x = x; this.y = y; this.size = size; this.sX = sX; this.sY = sY;
+            }
+            update() {
+ 
